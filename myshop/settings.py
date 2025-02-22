@@ -17,6 +17,7 @@ ALLOWED_HOSTS = os.environ.get(
     '127.0.0.1,localhost,django-production-7362.up.railway.app'
 ).split(',')
 
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
