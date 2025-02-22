@@ -3,6 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from paypal.standard.ipn.views import ipn
 # Import your custom admin site instance
+from django.views.static import serve
 from shop.admin import admin_site
 
 urlpatterns = [
@@ -17,5 +18,6 @@ urlpatterns = [
     path('about/', include(('shop.urls', 'shop'), namespace='shop')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
