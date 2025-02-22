@@ -100,7 +100,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myshop.wsgi.application'
 
-
+import dj_database_url
+import os
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -108,9 +109,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
     }
 }
 
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')  # Example: comma-separated hosts
+SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret-key')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
