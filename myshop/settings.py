@@ -93,6 +93,13 @@ CKEDITOR_CONFIGS = {
 # Paypal settings
 PAYPAL_RECEIVER_EMAIL = os.environ.get('PAYPAL_RECEIVER_EMAIL', 'your-paypal-email@example.com')
 PAYPAL_TEST = os.environ.get('PAYPAL_TEST', 'True') == 'True'
+# Add this at the end of settings.py
+if not DEBUG:  # Only apply in production
+    import whitenoise
+
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+
+    # Enable serving media
 
 # CSRF and Security settings
 CSRF_COOKIE_HTTPONLY = True
