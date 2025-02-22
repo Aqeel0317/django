@@ -11,12 +11,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# Allowed Hosts - updated to include the Railway production domain.
+# Allowed Hosts - include local and production domains.
 ALLOWED_HOSTS = os.environ.get(
     'ALLOWED_HOSTS',
     '127.0.0.1,localhost,django-production-7362.up.railway.app'
 ).split(',')
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -37,7 +36,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Ensures static files are served
+    # WhiteNoise should be placed high in the list to ensure static file serving.
+    'whitenoise.middleware.WhiteNoiseMiddleware',  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -46,7 +46,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Root URL configuration – make sure this file exists at myshop/urls.py!
 ROOT_URLCONF = 'myshop.urls'
 
 TEMPLATES = [
@@ -77,6 +76,10 @@ DATABASES = {
 # Static and Media Files
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Enable WhiteNoise static files compression and caching in production.
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -93,25 +96,26 @@ CKEDITOR_CONFIGS = {
 # Paypal settings
 PAYPAL_RECEIVER_EMAIL = os.environ.get('PAYPAL_RECEIVER_EMAIL', 'your-paypal-email@example.com')
 PAYPAL_TEST = os.environ.get('PAYPAL_TEST', 'True') == 'True'
-# Add this at the end of settings.py
-if not DEBUG:  # Only apply in production
-    import whitenoise
-
-    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
-
-    # Enable serving media
 
 # CSRF and Security settings
 CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = DEBUG is False  # Use secure cookies in production
+CSRF_COOKIE_SECURE = DEBUG is False  # Secure cookies in production
 
-# Updated CSRF_TRUSTED_ORIGINS to include the production domain.
+# CSRF_TRUSTED_ORIGINS - include your production domain(s)
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
     'http://127.0.0.1',
     'https://django-production-7362.up.railway.app',
 ]
 
+# Additional Production Security Settings (optional but recommended)
+if not DEBUG:
+    # Ensure your site is only served via HTTPS in production.
+    SECURE_SSL_REDIRECT = True
+    # Use secure HSTS headers.
+    SECURE_HSTS_SECONDS = 3600  # Adjust as needed
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 # Celery configuration
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672//')
