@@ -11,8 +11,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# Allowed Hosts
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+# Allowed Hosts - updated to include the Railway production domain.
+ALLOWED_HOSTS = os.environ.get(
+    'ALLOWED_HOSTS',
+    '127.0.0.1,localhost,django-production-7362.up.railway.app'
+).split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -93,10 +96,12 @@ PAYPAL_TEST = os.environ.get('PAYPAL_TEST', 'True') == 'True'
 # CSRF and Security settings
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = DEBUG is False  # Use secure cookies in production
+
+# Updated CSRF_TRUSTED_ORIGINS to include the production domain.
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
     'http://127.0.0.1',
-    'https://yourdomain.com',  # Replace with your actual domain
+    'https://django-production-7362.up.railway.app',
 ]
 
 # Celery configuration
