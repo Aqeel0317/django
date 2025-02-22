@@ -105,6 +105,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://django-production-7362.up.railway.app',
 ]
 
+
 # Celery configuration
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672//')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'rpc://')
