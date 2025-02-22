@@ -1,0 +1,123 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% block title %}
+    {% if category %}{{ category.name }}{% else %}Products{% endif %}
+{% endblock %}
+{% block content %}
+<div class="product-detail">
+    <div class="tain">
+        <div class="image-gallery">
+            {% if images %}
+                <div class="main-image">
+                    <img src="{{ images.first.image.url }}" alt="{{ product.name }}" style="height: 350px;">
+                </div>
+                <div class="thumbnails">
+                    {% for image in images %}
+                        <img src="{{ image.image.url }}" alt="{{ product.name }}" class="thumbnail" onclick="changeMainImage('{{ image.image.url }}')">
+                    {% endfor %}
+                </div>
+            {% else %}
+                <img src="{% static 'img/no_image.png' %}" alt="No image available">
+            {% endif %}
+        </div>
+        <div class="infoo">
+            <h1>{{ product.name }}</h1>
+            <h2><a href="{{ product.category.get_absolute_url }}">{{ product.category }}</a></h2>
+            <p class="price">${{ product.price }}</p>
+            <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                {{ cart_product_form }}
+                {% csrf_token %}
+                <input type="submit" value="Add to cart">
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabs for Description and Specifications -->
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab(event, 'description')">Description</button>
+        <button class="tab-button" onclick="openTab(event, 'specifications')">Specifications</button>
+    </div>
+
+    <div id="description" class="tab-content active">
+        <p>{{ product.description|safe }}</p>
+    </div>
+
+    <div id="specifications" class="tab-content">
+        <ul>
+            <li><strong>Category:</strong> {{ product.category.name }}</li>
+            <li><strong>Stock:</strong> {{ product.stock }}</li>
+            <li><strong>Price:</strong> ${{ product.price }}</li>
+            <li>{{ specifications|linebreaks }}</li>
+        </ul>
+    </div>
+
+    <!-- Related Products Section -->
+    <h3>Related Products</h3>
+    <div class="related-products">
+        {% for related in related_products %}
+            <div class="related-product">
+                <a href="{{ related.get_absolute_url }}">
+                    <img style="height: 100px;" src="{% if related.image %}{{ related.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="{{ related.name }}">
+                    <p>{{ related.name }}</p>
+                    <p class="price">${{ related.price }}</p>
+                </a>
+            </div>
+        {% empty %}
+            <p>No related products found.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function changeMainImage(src) {
+    document.querySelector('.main-image img').src = src;
+}
+
+function openTab(evt, tabName) {
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    evt.currentTarget.classList.add('active');
+}
+</script>
+
+<style>
+.product-detail {
+    width: 100%;
+}
+.tain {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.image-gallery .thumbnails img {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+.tab-button {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    margin-right: 5px;
+}
+.tab-button.active {
+    background-color: #fff;
+    border-bottom: 1px solid transparent;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% load static custom_filters %}
+
+{% block flasher %}
+{% if active_sales %}
+    <div class="flash-banner-container">
+        {% for sale in active_sales %}
+            <div class="flash-banner" style="background-image: url('{% if sale.image %}{{ sale.image.url }}{% else %}https://via.placeholder.com/1920x300/{{ sale.background_color }}{% endif %}');">
+                <div class="flash-banner-text">
+                    <h2>{{ sale.message }}</h2>
+                    <p>{{ sale.get_discount_text }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block banner %}
+{% static 'shop/skincare-banner.jpg' as img_url %}  {# Use a skincare-themed banner image #}
+<div class="scroll-animate images" style="background-image: url('{{ img_url }}'); height: 400px; background-size: cover; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <h1 class="scroll-animate" style="color: #fff; font-size: 3rem; font-weight: bold;">Welcome to Radiant Skin</h1>
+    <div class="images scroll-animate" style="width: 30%;">
+        <img style="height: 100%;" src="{% static 'shop/skincare-logo.png' %}" alt="Radiant Skin Logo">
+    </div>
+</div>
+{% endblock %}
+
+{% block title %}
+    {% if category %}
+        {{ category.name }}
+    {% else %}
+        Skincare Products
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">
+        {% if category %}{{ category.name }}{% else %}Our Products{% endif %}
+    </h2>
+    <div class="product-carousel">
+        <div class="carousel-inner">
+            {% for slide in products|batch:12 %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="slide">
+                        {% for row in slide|batch:4 %}
+                            <div class="row">
+                                {% for product in row %}
+                                    <div class="product-card col-md-3 col-sm-6 mb-4">
+                                        <a href="{{ product.get_absolute_url }}">
+                                            <img class="product-image" src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="{{ product.name }}">
+                                            <h3 class="product-name mt-2">{{ product.name }}</h3>
+                                        </a>
+                                        <p class="product-price text-muted">${{ product.price }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Carousel Controls -->
+        <button class="carousel-control-prev" onclick="moveSlide(-1)">❮ Prev</button>
+        <button class="carousel-control-next" onclick="moveSlide(1)">Next ❯</button>
+    </div>
+</div>
+
+<style>
+    /* Carousel Layout */
+    .product-carousel {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        padding: 2rem 0;
+    }
+    .carousel-inner {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+    }
+    .carousel-item {
+        flex: 0 0 100%;
+        display: none;
+    }
+    .carousel-item.active {
+        display: block;
+    }
+
+    /* Grid Layout & Product Card Styling */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .product-card {
+        background: #fff;
+        border-radius: 8px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+    }
+    .product-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    .product-image {
+        max-width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .product-name {
+        font-size: 1.1rem;
+        color: #333;
+        margin: 10px 0 8px;
+    }
+    .product-price {
+        font-size: 1.2rem;
+        color: #666;
+    }
+
+    /* Carousel Buttons */
+    .carousel-control-prev,
+    .carousel-control-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 18px;
+        z-index: 10;
+    }
+    .carousel-control-prev { left: 10px; }
+    .carousel-control-next { right: 10px; }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .product-card {
+            margin-bottom: 20px;
+        }
+    }
+    @media (max-width: 480px) {
+        .product-card {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+</style>
+
+<script>
+    let currentIndex = 0;
+    const items = document.querySelectorAll('.carousel-item');
+
+    function showSlide(index) {
+        items[currentIndex].classList.remove('active');
+        currentIndex = (index + items.length) % items.length;
+        items[currentIndex].classList.add('active');
+    }
+
+    function moveSlide(step) {
+        showSlide(currentIndex + step);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (items.length > 0) {
+            items[0].classList.add('active');
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function isElementInViewport(el) {
+            const rect = el.getBoundingClientRect();
+            return (
+                rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.bottom >= 0
+            );
+        }
+
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.scroll-animate');
+            elements.forEach(el => {
+                if (isElementInViewport(el)) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', animateOnScroll);
+        animateOnScroll();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "shop/base.html" %}
+{% block content %}
+<div class="chat-container">
+    <h2>Product Assistance Chatbot</h2>
+    <div id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="Ask about products..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
+{% endblock %}
+
+<script>
+function sendMessage() {
+    const userInput = document.getElementById("user-input").value;
+    document.getElementById("chat-box").innerHTML += "<div class='user-message'>" + userInput + "</div>";
+    
+    fetch("{% url 'chatbot_api' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({ message: userInput })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("chat-box").innerHTML += "<div class='bot-message'>" + data.reply + "</div>";
+        document.getElementById("user-input").value = ""; 
+    });
+}
+</script>

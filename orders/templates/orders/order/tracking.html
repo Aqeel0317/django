@@ -1,0 +1,14 @@
+<!-- tracking.html in orders/order/ -->
+<h1>Track Your Order</h1>
+<p>Order ID: {{ order.id }}</p>
+<p>Status: {{ order.get_status_display }}</p>
+<p>Order Date: {{ order.created }}</p>
+<p>Total Cost: ${{ order.get_total_cost }}</p>
+
+{% if order.status == 'shipped' %}
+    <p>Expected Delivery: 3-5 business days</p>
+{% elif order.status == 'delivered' %}
+    <p>Your order has been delivered. Thank you for shopping with us!</p>
+{% else %}
+    <p>Your order is currently {{ order.get_status_display }}. Please check back for updates.</p>
+{% endif %}

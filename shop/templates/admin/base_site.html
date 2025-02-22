@@ -1,0 +1,64 @@
+{% extends "admin/base.html" %}
+
+{% block title %} My Custom Admin | {{ title }} {% endblock %}
+
+{% block branding %}
+    <h1 style="color: #4CAF50; text-align: center;">My Custom Admin</h1>
+{% endblock %}
+
+{% block extrastyle %}
+    <style>
+        body { background: #f8f9fa; }
+        .module h2 {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .submit-row {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: right;
+        }
+        #header {
+            background: #4CAF50;
+            padding: 15px;
+        }
+        #branding h1 {
+            color: white;
+        }
+        .dashboard {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+        .dashboard .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 30%;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="dashboard">
+        <div class="card">
+            <h3>Total Products</h3>
+            <p>{{ total_products }}</p>
+        </div>
+        <div class="card">
+            <h3>Total Categories</h3>
+            <p>{{ total_categories }}</p>
+        </div>
+        <div class="card">
+            <h3>Active Sales</h3>
+            <p>{{ active_sales }}</p>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

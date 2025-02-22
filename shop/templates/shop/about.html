@@ -1,0 +1,52 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% block title %}About Us - Radiant Skin{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row align-items-center">
+    <!-- Image Section -->
+    <div class="col-md-6 mb-4 mb-md-0">
+      <img src="{% static 'images/about_us.jpg' %}" alt="About Radiant Skin" class="img-fluid rounded shadow">
+    </div>
+    <!-- Text Section -->
+    <div class="col-md-6">
+      <h1 class="display-4 text-primary">About Radiant Skin</h1>
+      <p class="lead">At Radiant Skin, our passion is to bring out your natural glow. Our curated collection of premium skincare products is formulated with the finest ingredients, ensuring that your skin receives the care it deserves.</p>
+      <p>Our journey began with a vision to empower every individual with confidence and radiant skin. With years of expertise in skincare and a commitment to sustainability, we craft products that nourish, rejuvenate, and protect your skin.</p>
+      <p>Join us in our journey towards beauty, wellness, and self-care.</p>
+    </div>
+  </div>
+  <!-- Our Values Section -->
+  <div class="row mt-5">
+    <div class="col text-center">
+      <h2 class="mb-4">Our Values</h2>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">Quality</h5>
+              <p class="card-text">We use only the highest quality ingredients to ensure effective and safe skincare.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">Sustainability</h5>
+              <p class="card-text">Our products are eco-friendly and designed with sustainability in mind.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">Transparency</h5>
+              <p class="card-text">We believe in honesty, clear communication, and building trust with our customers.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

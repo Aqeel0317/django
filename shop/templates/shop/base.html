@@ -1,0 +1,257 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Radiant Skin – Premium Skincare{% endblock %}</title>
+  
+  <!-- Bootstrap CSS from CDN for responsive design -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="{% static 'css/base.css' %}" rel="stylesheet">
+  <link href="{% static 'css/detail.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/sss.css' %}">
+  
+  <style>
+    /* Global typography & colors */
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #f8f9fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    
+    a {
+      text-decoration: none;
+    }
+  
+    /* Header styling */
+    #header {
+      background: linear-gradient(135deg, #dce35b, #45b649);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    #header .navbar-brand {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #fff;
+    }
+  
+    /* Navbar customizations */
+    .navbar-nav .nav-item {
+      margin: 0 1rem;
+    }
+    .navbar-nav .nav-link {
+      color: #fff;
+      font-size: 1.1rem;
+      transition: color 0.3s;
+    }
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .selected .nav-link {
+      color: #333;
+    }
+  
+    /* Order tracker & Search styling */
+    .order-tracker, .search {
+      margin-top: 0.5rem;
+    }
+    .order-tracker form,
+    .search form {
+      display: flex;
+      align-items: center;
+    }
+    .order-tracker input[type="text"],
+    .search input[type="text"] {
+      padding: 0.4rem;
+      border: none;
+      border-radius: 4px;
+      margin-right: 0.5rem;
+    }
+    .order-tracker .sss, .search .sss {
+      background: #fff;
+      color: #333;
+      border: 1px solid #333;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .order-tracker .sss:hover, .search .sss:hover {
+      background: #333;
+      color: #fff;
+    }
+    
+    /* Flash Banner for promotions */
+    .flash-banner-container {
+      position: absolute;
+      top: 90px;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      animation: slideIn 1s ease-out forwards;
+    }
+    .flash-banner {
+      width: 80%;
+      max-width: 800px;
+      background: url("{% static 'images/skincare-banner.jpg' %}") no-repeat center center;
+      background-size: cover;
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      animation: fadeIn 1s ease-out forwards;
+    }
+    .flash-banner-text h2 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+    .flash-banner-text p {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
+    .flash-banner-container.hide {
+      animation: slideOut 1s ease-in forwards;
+    }
+    @keyframes slideIn {
+      0% { top: -70%; }
+      100% { top: 90px; }
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes slideOut {
+      0% { top: 90px; }
+      100% { top: -70%; }
+    }
+    
+    /* Content area */
+    #content {
+      padding: 2rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      #header {
+        padding: 1rem;
+      }
+      .order-tracker, .search {
+        margin-top: 1rem;
+        width: 100%;
+      }
+      .flash-banner {
+        width: 90%;
+        padding: 1.5rem;
+      }
+    }
+    
+    /* Custom style for navbar toggler icon */
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255,0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with Responsive Navbar -->
+  <header id="header">
+    <nav class="navbar navbar-expand-md navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="/">Radiant Skin</a>
+        <!-- Navbar Toggler for small devices -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Collapsible Navbar -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            {% for c in categories %}
+              <li class="nav-item {% if category and category.slug == c.slug %}selected{% endif %}">
+                <a class="nav-link" href="{% url 'shop:product_list_by_category' c.slug %}">{{ c.name }}</a>
+              </li>
+            {% endfor %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'shop:about' %}">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'shop:contact' %}">Contact</a>
+            </li>
+          </ul>
+        </div>
+        <div class="d-flex flex-column align-items-end">
+          <div class="order-tracker">
+            <form action="{% url 'orders:order_tracking' %}" method="post">
+              {% csrf_token %}
+              <input type="text" name="order_id" placeholder="Order ID" required>
+              <button class="sss" type="submit">Track</button>
+            </form>
+          </div>
+          <div class="search mt-2">
+            <form action="{% url 'shop:product_search' %}" method="get">
+              <input type="text" name="query" placeholder="Search products...">
+              <button class="sss" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  
+  <!-- Cart/Subheader -->
+  <div id="subheader" class="bg-light py-2 text-center">
+    <div class="cart">
+      {% with total_items=cart|length %}
+        {% if cart|length > 0 %}
+          Your cart:
+          <a href="{% url "cart:cart_detail" %}">
+            {{ total_items }} item{{ total_items|pluralize }},
+            ${{ cart.get_total_price }}
+          </a>
+        {% else %}
+          Your cart is empty.
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+  
+  <!-- Flash Banner for promotions -->
+  <!-- (Optional: You can include your flash banners here) -->
+  
+  <!-- Main Banner or Hero Section -->
+  <div class="banner">
+    {% block banner %}
+    <!-- You can include a dynamic hero image or slider here -->
+    {% endblock %}
+  </div>
+  
+  <!-- Main Content -->
+  <main id="content">
+    {% block content %}
+    <!-- Dynamic product listings, testimonials, and skincare tips go here -->
+    {% endblock %}
+  </main>
+  
+  <!-- Optional Footer -->
+  <footer class="bg-dark text-white text-center py-3">
+    <p>&copy; {{ now|date:"Y" }} Radiant Skin. All rights reserved.</p>
+  </footer>
+  
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Hide flash banners after 5 seconds
+    setTimeout(function() {
+      document.querySelectorAll('.flash-banner').forEach(function(banner) {
+        banner.style.display = 'none';
+      });
+    }, 5000);
+  </script>
+</body>
+</html>
