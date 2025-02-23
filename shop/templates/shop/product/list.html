@@ -2,6 +2,7 @@
 {% load static %}
 {% load static custom_filters %}
 
+
 {% block flasher %}
 {% if active_sales %}
     <div class="flash-banner-container">
@@ -18,7 +19,7 @@
 {% endblock %}
 
 {% block banner %}
-{% static 'shop/skincare-banner.jpg' as img_url %}  {# Use a skincare-themed banner image #}
+{% static 'shop/banner.png' as img_url %}  {# Use a skincare-themed banner image #}
 <div class="scroll-animate images" style="background-image: url('{{ img_url }}'); height: 400px; background-size: cover; display: flex; flex-direction: column; align-items: center; justify-content: center;">
     <h1 class="scroll-animate" style="color: #fff; font-size: 3rem; font-weight: bold;">Welcome to Radiant Skin</h1>
     <div class="images scroll-animate" style="width: 30%;">
@@ -36,166 +37,141 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="container my-5">
     <h2 class="text-center mb-4">
-        {% if category %}{{ category.name }}{% else %}Our Products{% endif %}
-    </h2>
-    <div class="product-carousel">
-        <div class="carousel-inner">
-            {% for slide in products|batch:12 %}
-                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                    <div class="slide">
-                        {% for row in slide|batch:4 %}
-                            <div class="row">
-                                {% for product in row %}
-                                    <div class="product-card col-md-3 col-sm-6 mb-4">
-                                        <a href="{{ product.get_absolute_url }}">
-                                            <img class="product-image" src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="{{ product.name }}">
-                                            <h3 class="product-name mt-2">{{ product.name }}</h3>
-                                        </a>
-                                        <p class="product-price text-muted">${{ product.price }}</p>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
+        Our Categories
+       </h2>
+  {# --- Category Cards Section --- #}
+  <div class="row mb-4">
+    {% for cat in categories|slice:":3" %}
+      <div class="col-4 mb-3">
+        <div class="card h-100">
+          {% if cat.image %}
+            <img src="{{ cat.image.url }}" class="card-img-top" alt="{{ cat.name }}">
+          {% else %}
+            <img src="{% static 'img/default-category.jpg' %}" class="card-img-top" alt="{{ cat.name }}">
+          {% endif %}
+          <div class="card-body text-center">
+            <h5 class="card-title">{{ cat.name }}</h5>
+            <a href="{% url 'shop:product_list_by_category' cat.slug %}" class="btn btn-primary btn-sm btn-block" style="margin-left: -16px;">
+              View Products
+            </a>
+          </div>
         </div>
+      </div>
+    {% endfor %}
+  </div>
 
-        <!-- Carousel Controls -->
-        <button class="carousel-control-prev" onclick="moveSlide(-1)">❮ Prev</button>
-        <button class="carousel-control-next" onclick="moveSlide(1)">Next ❯</button>
-    </div>
+  <div class="text-center mb-5">
+    <a href="{% url 'shop:category_list' %}" class="btn btn-outline-secondary">See All Categories</a>
+  </div>
+
+  {# --- Product Grid Section (Slider Removed) --- #}
+  <h2 class="text-center mb-4">
+    {% if category %}{{ category.name }}{% else %}Our Products{% endif %}
+  </h2>
+  <div class="row">
+    {% for product in products %}
+      <div class="col-4 mb-4">
+         <div class="product-card">
+           <a href="{{ product.get_absolute_url }}">
+             {% if product.image %}
+               <img src="{{ product.image.url }}" alt="{{ product.name }}">
+             {% else %}
+               <img src="{% static 'img/no_image.png' %}" alt="No image available">
+             {% endif %}
+             <h3 class="product-name mt-2">{{ product.name }}</h3>
+           </a>
+           <p class="product-price text-muted">${{ product.price }}</p>
+           <div class="share-buttons mt-2">
+             {# Build the absolute URL using request.scheme, request.get_host and product.get_absolute_url #}
+             {% with full_url=request.scheme|add:"://"|add:request.get_host|add:product.get_absolute_url %}
+               <div class="dropdown share-dropdown">
+                 <button style="margin-left: -14px;" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="shareDropdown{{ product.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   Share
+                 </button>
+                 <div class="dropdown-menu" aria-labelledby="shareDropdown{{ product.id }}">
+                   <button class="dropdown-item" onclick="copyLink('{{ full_url }}')">Copy Link</button>
+                   <a class="dropdown-item" href="https://www.facebook.com/sharer/sharer.php?u={{ full_url }}" target="_blank">Facebook</a>
+                   <a class="dropdown-item" href="https://api.whatsapp.com/send?text={{ full_url }}" target="_blank">WhatsApp</a>
+                 </div>
+               </div>
+             {% endwith %}
+           </div>
+         </div>
+      </div>
+    {% endfor %}
+  </div>
 </div>
 
 <style>
-    /* Carousel Layout */
-    .product-carousel {
-        position: relative;
-        overflow: hidden;
-        width: 100%;
-        padding: 2rem 0;
-    }
-    .carousel-inner {
-        display: flex;
-        transition: transform 0.5s ease-in-out;
-    }
-    .carousel-item {
-        flex: 0 0 100%;
-        display: none;
-    }
-    .carousel-item.active {
-        display: block;
-    }
-
-    /* Grid Layout & Product Card Styling */
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
-    .product-card {
-        background: #fff;
-        border-radius: 8px;
-        text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 15px;
-    }
-    .product-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-    .product-image {
-        max-width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 4px;
-    }
-    .product-name {
-        font-size: 1.1rem;
-        color: #333;
-        margin: 10px 0 8px;
-    }
-    .product-price {
-        font-size: 1.2rem;
-        color: #666;
-    }
-
-    /* Carousel Buttons */
-    .carousel-control-prev,
-    .carousel-control-next {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #fff;
-        border: none;
-        padding: 10px 15px;
-        cursor: pointer;
-        font-size: 18px;
-        z-index: 10;
-    }
-    .carousel-control-prev { left: 10px; }
-    .carousel-control-next { right: 10px; }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .product-card {
-            margin-bottom: 20px;
-        }
-    }
-    @media (max-width: 480px) {
-        .product-card {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    }
+  /* Product Card Styling */
+  .product-card {
+      background: #fff;
+      border-radius: 8px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+  }
+  .product-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  .product-card img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 4px;
+  }
+  .product-name {
+      font-size: 1.1rem;
+      color: #333;
+      margin: 10px 0 8px;
+  }
+  .product-price {
+      font-size: 1.2rem;
+      color: #666;
+  }
+  /* Responsive adjustments for mobile: force 3 items per row */
+  @media (max-width: 576px) {
+      .col-4 {
+          flex: 0 0 33.33%;
+          max-width: 33.33%;
+      }
+  }
 </style>
 
 <script>
-    let currentIndex = 0;
-    const items = document.querySelectorAll('.carousel-item');
+  document.addEventListener("DOMContentLoaded", function () {
+      function isElementInViewport(el) {
+          const rect = el.getBoundingClientRect();
+          return (
+              rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+              rect.bottom >= 0
+          );
+      }
 
-    function showSlide(index) {
-        items[currentIndex].classList.remove('active');
-        currentIndex = (index + items.length) % items.length;
-        items[currentIndex].classList.add('active');
-    }
+      function animateOnScroll() {
+          const elements = document.querySelectorAll('.scroll-animate');
+          elements.forEach(el => {
+              if (isElementInViewport(el)) {
+                  el.classList.add('active');
+              }
+          });
+      }
 
-    function moveSlide(step) {
-        showSlide(currentIndex + step);
-    }
+      window.addEventListener('scroll', animateOnScroll);
+      animateOnScroll();
+  });
 
-    document.addEventListener("DOMContentLoaded", () => {
-        if (items.length > 0) {
-            items[0].classList.add('active');
-        }
-    });
-</script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        function isElementInViewport(el) {
-            const rect = el.getBoundingClientRect();
-            return (
-                rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-                rect.bottom >= 0
-            );
-        }
-
-        function animateOnScroll() {
-            const elements = document.querySelectorAll('.scroll-animate');
-            elements.forEach(el => {
-                if (isElementInViewport(el)) {
-                    el.classList.add('active');
-                }
-            });
-        }
-
-        window.addEventListener('scroll', animateOnScroll);
-        animateOnScroll();
-    });
+  function copyLink(url) {
+      navigator.clipboard.writeText(url).then(function() {
+          alert('Link copied to clipboard!');
+      }, function(err) {
+          alert('Could not copy link. Error: ' + err);
+      });
+  }
 </script>
 {% endblock %}
