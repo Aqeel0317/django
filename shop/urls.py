@@ -1,8 +1,7 @@
 from django.urls import path
 from . import views
 from .views import about
-from django.urls import re_path
-from django.views.static import serve
+
 from django.conf import settings
 app_name = 'shop'
 
@@ -19,7 +18,4 @@ urlpatterns = [
 
 
 ]
-urlpatterns = [
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    # ... other URL patterns ...
-]
+
