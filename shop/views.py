@@ -6,6 +6,7 @@ from django.db.models import Q
 def product_list(request, category_slug=None):
     category = None
     categories = Category.objects.all()
+    cart_product_form = CartAddProductForm()
     products = Product.objects.filter(available=True)
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
@@ -13,6 +14,7 @@ def product_list(request, category_slug=None):
     context = {
         'category': category,
         'categories': categories,
+        'cart_product_form': cart_product_form,
         'products': products
     }
     return render(request, 'shop/product/list.html', context)
