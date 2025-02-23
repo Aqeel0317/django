@@ -11,8 +11,12 @@
   <!-- Custom CSS -->
   <link href="{% static 'css/base.css' %}" rel="stylesheet">
   <link href="{% static 'css/detail.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="{% static 'css/sss.css' %}">
-  
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <style>
     /* Global typography & colors */
     body {
@@ -26,7 +30,97 @@
     a {
       text-decoration: none;
     }
-  
+
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+      /* Navbar adjustments */
+      .navbar-nav {
+        margin-top: 1rem;
+      }
+      .nav-item {
+        margin: 0.5rem 0;
+      }
+      
+      /* Header height reduction */
+      #header {
+        padding: 0.5rem 0;
+      }
+      
+      /* Search and order tracker forms */
+      .order-tracker, .search {
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+      .order-tracker form,
+      .search form {
+        flex-direction: column;
+      }
+      .order-tracker input[type="text"],
+      .search input[type="text"] {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      /* Flash banner adjustments */
+      .flash-banner-container {
+        top: 70px;
+      }
+      .flash-banner-text h2 {
+        font-size: 1.8rem;
+      }
+      .flash-banner-text p {
+        font-size: 1rem;
+      }
+
+      /* Content padding reduction */
+      #content {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      /* Smaller text sizes */
+      #header .navbar-brand {
+        font-size: 1.5rem;
+      }
+      .navbar-nav .nav-link {
+        font-size: 1rem;
+      }
+      
+      /* Cart badge positioning */
+      .cart-badge {
+        font-size: 0.6em;
+        padding: 0.25em 0.5em;
+      }
+
+      /* Banner adjustments */
+      .flash-banner {
+        padding: 1rem;
+      }
+      .flash-banner-text h2 {
+        font-size: 1.5rem;
+      }
+
+      /* Footer text */
+      footer p {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Mobile-first adjustments */
+    .order-tracker, .search {
+      width: 100%;
+      max-width: 300px;
+    }
+
+    /* Responsive images */
+    .img-fluid {
+      max-width: 100%;
+      height: auto;
+    }
+
     /* Header styling */
     #header {
       background: linear-gradient(135deg, #dce35b, #45b649);
@@ -183,6 +277,39 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'shop:contact' %}">Contact</a>
             </li>
+            <li class="nav-item">
+              <a href="{% url 'cart:cart_detail' %}" class="nav-link position-relative">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-badge position-absolute top-25 start-75 translate-middle badge rounded-pill bg-danger">
+                  {% with total_items=cart|length %}
+                    {{ total_items|default:"0" }}
+                  {% endwith %}
+                </span>
+              </a>
+            </li>
+          </ul>
+            <!-- In your base.html navbar section -->
+          </div>
+        </nav>
+
+        <style>
+          /* Cart Icon Styling */
+          .cart-badge {
+            font-size: 0.7em;
+            padding: 0.35em 0.65em;
+          }
+      
+          .nav-link:hover .cart-badge {
+            background: #ff4444 !important;
+          }
+      
+          @media (max-width: 768px) {
+            .cart-badge {
+              font-size: 0.6em;
+              padding: 0.3em 0.6em;
+            }
+          }
+        </style>
           </ul>
         </div>
         <div class="d-flex flex-column align-items-end">
