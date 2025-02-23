@@ -4,120 +4,403 @@
     {% if category %}{{ category.name }}{% else %}Products{% endif %}
 {% endblock %}
 {% block content %}
-<div class="product-detail">
-    <div class="tain">
+<div class="product-detail-container">
+    <!-- Main Product Section -->
+    <div class="product-main">
+        <!-- Image Gallery -->
         <div class="image-gallery">
             {% if images %}
                 <div class="main-image">
-                    <img src="{{ images.first.image.url }}" alt="{{ product.name }}" style="height: 350px;">
+                    <img src="{{ images.first.image.url }}" alt="{{ product.name }}" class="active">
                 </div>
                 <div class="thumbnails">
                     {% for image in images %}
-                        <img src="{{ image.image.url }}" alt="{{ product.name }}" class="thumbnail" onclick="changeMainImage('{{ image.image.url }}')">
+                        <div class="thumbnail-item {% if forloop.first %}active{% endif %}" 
+                             onclick="changeMainImage('{{ image.image.url }}', this)">
+                            <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                        </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <img src="{% static 'img/no_image.png' %}" alt="No image available">
+                <div class="no-image">
+                    <img src="{% static 'img/no_image.png' %}" alt="No image available">
+                </div>
             {% endif %}
         </div>
-        <div class="infoo">
-            <h1>{{ product.name }}</h1>
-            <h2><a href="{{ product.category.get_absolute_url }}">{{ product.category }}</a></h2>
-            <p class="price">${{ product.price }}</p>
-            <form action="{% url 'cart:cart_add' product.id %}" method="post">
+
+        <!-- Product Info -->
+        <div class="product-info">
+            <div class="product-header">
+                <h1 class="product-title">{{ product.name }}</h1>
+                <div class="category-badge">
+                    <a href="{{ product.category.get_absolute_url }}" class="pill-button">
+                        {{ product.category }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="price-section">
+                <span class="current-price">${{ product.price }}</span>
+                {% if product.old_price %}
+                    <span class="old-price">${{ product.old_price }}</span>
+                {% endif %}
+            </div>
+
+            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="cart-form">
                 {{ cart_product_form }}
                 {% csrf_token %}
-                <input type="submit" value="Add to cart">
+                <button type="submit" class="add-to-cart-button">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                </button>
             </form>
+
+            <div class="product-highlights">
+                <div class="highlight-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>1 Year Warranty</span>
+                </div>
+                <div class="highlight-item">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>Free Shipping</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Tabs for Description and Specifications -->
-    <div class="tabs">
-        <button class="tab-button active" onclick="openTab(event, 'description')">Description</button>
-        <button class="tab-button" onclick="openTab(event, 'specifications')">Specifications</button>
-    </div>
+    <!-- Product Tabs -->
+    <div class="product-tabs">
+        <div class="tab-nav">
+            <button class="tab-link active" data-target="description">Description</button>
+            <button class="tab-link" data-target="specifications">Specifications</button>
+            <button class="tab-link" data-target="reviews">Reviews ({{ reviews.count }})</button>
+        </div>
 
-    <div id="description" class="tab-content active">
-        <p>{{ product.description|safe }}</p>
-    </div>
-
-    <div id="specifications" class="tab-content">
-        <ul>
-            <li><strong>Category:</strong> {{ product.category.name }}</li>
-            <li><strong>Stock:</strong> {{ product.stock }}</li>
-            <li><strong>Price:</strong> ${{ product.price }}</li>
-            <li>{{ specifications|linebreaks }}</li>
-        </ul>
-    </div>
-
-    <!-- Related Products Section -->
-    <h3>Related Products</h3>
-    <div class="related-products">
-        {% for related in related_products %}
-            <div class="related-product">
-                <a href="{{ related.get_absolute_url }}">
-                    <img style="height: 100px;" src="{% if related.image %}{{ related.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="{{ related.name }}">
-                    <p>{{ related.name }}</p>
-                    <p class="price">${{ related.price }}</p>
-                </a>
+        <div class="tab-content active" id="description">
+            <div class="content-box">
+                {{ product.description|safe }}
             </div>
-        {% empty %}
-            <p>No related products found.</p>
-        {% endfor %}
+        </div>
+
+        <div class="tab-content" id="specifications">
+            <div class="content-box">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <span class="spec-label">Category</span>
+                        <span class="spec-value">{{ product.category.name }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Availability</span>
+                        <span class="spec-value">{{ product.stock }} in stock</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">SKU</span>
+                        <span class="spec-value">{{ product.sku }}</span>
+                    </div>
+                    <div class="spec-item full-width">
+                        <span class="spec-label">Details</span>
+                        <span class="spec-value">{{ specifications|linebreaks }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="reviews">
+            <div class="content-box">
+                <!-- Add review system here -->
+            </div>
+        </div>
     </div>
+
+    <!-- Related Products -->
+    <section class="related-products">
+        <h3 class="section-title">You May Also Like</h3>
+        <div class="related-grid">
+            {% for related in related_products %}
+                <a href="{{ related.get_absolute_url }}" class="related-product">
+                    <div class="product-image">
+                        <img src="{% if related.image %}{{ related.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" 
+                             alt="{{ related.name }}">
+                    </div>
+                    <div class="product-info">
+                        <h4 class="product-name">{{ related.name }}</h4>
+                        <div class="price">${{ related.price }}</div>
+                    </div>
+                </a>
+            {% empty %}
+                <p class="no-related">No related products found.</p>
+            {% endfor %}
+        </div>
+    </section>
 </div>
 
 <script>
-function changeMainImage(src) {
-    document.querySelector('.main-image img').src = src;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    document.querySelectorAll('.tab-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const target = this.dataset.target;
+            document.querySelectorAll('.tab-link, .tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            this.classList.add('active');
+            document.getElementById(target).classList.add('active');
+        });
+    });
 
-function openTab(evt, tabName) {
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
-    document.getElementById(tabName).classList.add('active');
-    evt.currentTarget.classList.add('active');
-}
+    // Image gallery interactions
+    function changeMainImage(src, element) {
+        document.querySelector('.main-image img').src = src;
+        document.querySelectorAll('.thumbnail-item').forEach(thumb => {
+            thumb.classList.remove('active');
+        });
+        element.classList.add('active');
+    }
+    window.changeMainImage = changeMainImage;
+
+    // Add to cart animation
+    document.querySelector('.add-to-cart-button').addEventListener('click', function(e) {
+        this.innerHTML = `<i class="fas fa-check"></i> Added to Cart!`;
+        setTimeout(() => {
+            this.innerHTML = `<i class="fas fa-shopping-cart"></i> Add to Cart`;
+        }, 2000);
+    });
+});
 </script>
 
 <style>
-.product-detail {
+:root {
+    --primary-color: #2a2a2a;
+    --accent-color: #ff6b6b;
+    --text-color: #333;
+    --border-color: #e0e0e0;
+    --transition: all 0.3s ease;
+}
+
+/* Base Styles */
+.product-detail-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.product-main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* Image Gallery */
+.image-gallery {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.main-image img {
     width: 100%;
+    height: 500px;
+    object-fit: contain;
+    border-radius: 12px;
+    transition: var(--transition);
 }
-.tain {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
+
+.thumbnails {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
 }
-.image-gallery .thumbnails img {
+
+.thumbnail-item {
+    border: 2px solid transparent;
+    border-radius: 8px;
     cursor: pointer;
-    width: 50px;
-    height: 50px;
-    margin: 5px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    transition: var(--transition);
 }
-.tabs {
-    display: flex;
-    margin-bottom: 20px;
+
+.thumbnail-item.active {
+    border-color: var(--accent-color);
 }
-.tab-button {
-    padding: 10px 20px;
+
+.thumbnail-item img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* Product Info */
+.product-info {
+    padding: 1rem;
+}
+
+.product-header {
+    margin-bottom: 1.5rem;
+}
+
+.product-title {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.price-section {
+    margin: 2rem 0;
+}
+
+.current-price {
+    font-size: 2rem;
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.old-price {
+    font-size: 1.2rem;
+    color: #999;
+    text-decoration: line-through;
+    margin-left: 1rem;
+}
+
+/* Add to Cart Form */
+.cart-form {
+    margin: 2rem 0;
+}
+
+.add-to-cart-button {
+    background: var(--accent-color);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 1.1rem;
     cursor: pointer;
-    border: 1px solid #ccc;
-    background-color: #f1f1f1;
-    margin-right: 5px;
+    transition: var(--transition);
 }
-.tab-button.active {
-    background-color: #fff;
-    border-bottom: 1px solid transparent;
+
+.add-to-cart-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,107,107,0.3);
 }
-.tab-content {
-    display: none;
+
+/* Product Tabs */
+.tab-nav {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 2rem;
 }
-.tab-content.active {
-    display: block;
+
+.tab-link {
+    background: none;
+    border: none;
+    padding: 1rem 0;
+    font-size: 1.1rem;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+}
+
+.tab-link.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.tab-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent-color);
+}
+
+.content-box {
+    padding: 2rem;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Related Products */
+.related-products {
+    margin: 4rem 0;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.related-product {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.related-product:hover {
+    transform: translateY(-5px);
+}
+
+.related-product img {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    padding: 1rem;
+}
+
+.related-product .product-info {
+    padding: 1rem;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .product-main {
+        grid-template-columns: 1fr;
+    }
+
+    .main-image img {
+        height: 350px;
+    }
+
+    .product-title {
+        font-size: 1.5rem;
+    }
+
+    .current-price {
+        font-size: 1.5rem;
+    }
+
+    .tab-nav {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .thumbnails {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .thumbnail-item img {
+        height: 60px;
+    }
+
+    .add-to-cart-button {
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
 }
 </style>
 {% endblock %}
