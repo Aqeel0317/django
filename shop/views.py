@@ -76,3 +76,9 @@ def contact(request):
         'categories': categories,
     }
     return render(request, 'shop/contact.html', context)
+def category_list(request):
+    categories = Category.objects.all()
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'shop/category/list.html', context)
