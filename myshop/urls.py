@@ -5,6 +5,10 @@ from paypal.standard.ipn.views import ipn
 # Import your custom admin site instance
 from django.views.static import serve
 from shop.admin import admin_site
+from django.urls import re_path
+from django.views.static import serve
+from django.conf import settings
+
 
 urlpatterns = [
     path('admin/', admin_site.urls),  # Use your custom admin site
