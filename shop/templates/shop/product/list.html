@@ -2,31 +2,71 @@
 {% load static %}
 {% load static custom_filters %}
 
-
-{% block flasher %}
-{% if active_sales %}
-    <div class="flash-banner-container">
-        {% for sale in active_sales %}
-            <div class="flash-banner" style="background-image: url('{% if sale.image %}{{ sale.image.url }}{% else %}https://via.placeholder.com/1920x300/{{ sale.background_color }}{% endif %}');">
-                <div class="flash-banner-text">
-                    <h2>{{ sale.message }}</h2>
-                    <p>{{ sale.get_discount_text }}</p>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
-{% endblock %}
-
 {% block banner %}
-{% static 'shop/banner.png' as img_url %}  {# Use a skincare-themed banner image #}
-<div class="scroll-animate images" style="background-image: url('{{ img_url }}'); height: 400px; background-size: cover; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    <h1 class="scroll-animate" style="color: #fff; font-size: 3rem; font-weight: bold;">Welcome to Radiant Skin</h1>
-    <div class="images scroll-animate" style="width: 30%;">
-        <img style="height: 100%;" src="{% static 'shop/skincare-logo.png' %}" alt="Radiant Skin Logo">
+<section class="hero">
+  <!-- Swiper Slider -->
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+
+      {% with slide1_url="shop/banner.png" slide2_url="shop/banner2.png" slide3_url="shop/banner3.png" %}
+
+      <div class="swiper-slide" style="background-image: url('{% static slide1_url %}'); background-size: cover; background-position: center; height: 400px;">
+        <div class="slide-content">
+          <h1>Welcome to Radiant Skin</h1>
+          <p>Experience the ultimate skincare journey.</p>
+         
+        </div>
+      </div>
+
+      <div class="swiper-slide" style="background-image: url('{% static slide2_url %}'); background-size: cover; background-position: center; height: 400px;">
+        <div class="slide-content">
+          <h1>Revitalize Your Beauty</h1>
+          <p>Discover our exclusive skincare collection.</p>
+         
+        </div>
+      </div>
+
+      <div class="swiper-slide" style="background-image: url('{% static slide3_url %}'); background-size: cover; background-position: center; height: 400px;">
+        <div class="slide-content">
+          <h1>Glow Like Never Before</h1>
+          <p>Your journey to flawless skin begins here.</p>
+        
+        </div>
+      </div>
+
+      {% endwith %}
+
     </div>
-</div>
+    <!-- Pagination and Navigation -->
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+  </div>
+</section>
+
+<!-- Include Swiper CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script>
+  var swiper = new Swiper(".mySwiper", {
+    spaceBetween: 30,
+    centeredSlides: true,
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+    },
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true,
+    },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+  });
+</script>
 {% endblock %}
+
 
 {% block title %}
     {% if category %}
@@ -36,142 +76,539 @@
     {% endif %}
 {% endblock %}
 
+
 {% block content %}
-
-<div class="container my-5">
-    <h2 class="text-center mb-4">
-        Our Categories
-       </h2>
-  {# --- Category Cards Section --- #}
-  <div class="row mb-4">
-    {% for cat in categories|slice:":3" %}
-      <div class="col-4 mb-3">
-        <div class="card h-100">
-          {% if cat.image %}
-            <img src="{{ cat.image.url }}" class="card-img-top" alt="{{ cat.name }}">
-          {% else %}
-            <img src="{% static 'img/default-category.jpg' %}" class="card-img-top" alt="{{ cat.name }}">
-          {% endif %}
-          <div class="card-body text-center">
-            <h5 class="card-title">{{ cat.name }}</h5>
-            <a href="{% url 'shop:product_list_by_category' cat.slug %}" class="btn btn-primary btn-sm btn-block" style="margin-left: -16px;">
-              View Products
-            </a>
-          </div>
+<div class="container-fluid px-3 px-md-5">
+    {# ===== Category Section ===== #}
+    <section class="category-section mb-5">
+        <h2 class="section-title text-center mb-4">Explore Categories</h2>
+        <div class="row g-3 g-md-4 justify-content-center">
+            {% for cat in categories|slice:":3" %}
+            <div class="col-4 col-md-2 col-lg-2">
+                <div class="category-card hover-scale">
+                    <a href="{% url 'shop:product_list_by_category' cat.slug %}" class="text-decoration-none">
+                        <div class="category-image">
+                            {% if cat.image %}
+                                <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="img-fluid">
+                            {% else %}
+                                <img src="{% static 'img/default-category.jpg' %}" alt="{{ cat.name }}" class="img-fluid">
+                            {% endif %}
+                        </div>
+                        <div class="category-info text-center mt-2">
+                            <h3 class="category-name mb-0">{{ cat.name }}</h3>
+                            <span class="product-count">{{ cat.products.count }} items</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-      </div>
-    {% endfor %}
-  </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'shop:category_list' %}" class="btn btn-see-all">
+                See All Categories <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </section>
 
-  <div class="text-center mb-5">
-    <a href="{% url 'shop:category_list' %}" class="btn btn-outline-secondary">See All Categories</a>
-  </div>
 
-  {# --- Product Grid Section (Slider Removed) --- #}
-  <h2 class="text-center mb-4">
-    {% if category %}{{ category.name }}{% else %}Our Products{% endif %}
-  </h2>
-  <div class="row">
-    {% for product in products %}
-      <div class="col-4 mb-4">
-         <div class="product-card">
-           <a href="{{ product.get_absolute_url }}">
-             {% if product.image %}
-               <img src="{{ product.image.url }}" alt="{{ product.name }}">
-             {% else %}
-               <img src="{% static 'img/no_image.png' %}" alt="No image available">
-             {% endif %}
-             <h3 class="product-name mt-2">{{ product.name }}</h3>
-           </a>
-           <p class="product-price text-muted">${{ product.price }}</p>
-           <div class="share-buttons mt-2">
-             {# Build the absolute URL using request.scheme, request.get_host and product.get_absolute_url #}
-             {% with full_url=request.scheme|add:"://"|add:request.get_host|add:product.get_absolute_url %}
-               <div class="dropdown share-dropdown">
-                 <button style="margin-left: -14px;" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="shareDropdown{{ product.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                   Share
-                 </button>
-                 <div class="dropdown-menu" aria-labelledby="shareDropdown{{ product.id }}">
-                   <button class="dropdown-item" onclick="copyLink('{{ full_url }}')">Copy Link</button>
-                   <a class="dropdown-item" href="https://www.facebook.com/sharer/sharer.php?u={{ full_url }}" target="_blank">Facebook</a>
-                   <a class="dropdown-item" href="https://api.whatsapp.com/send?text={{ full_url }}" target="_blank">WhatsApp</a>
-                 </div>
-               </div>
-             {% endwith %}
-           </div>
-         </div>
-      </div>
-    {% endfor %}
-  </div>
-</div>
-
+    {# ===== Product Grid ===== #}
+    <section class="product-section">
+        <h2 class="section-title text-center mb-4">Featured Products</h2>
+        <div class="row g-3 g-md-4">
+            {% for product in products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="product-card hover-scale">
+                    <!-- Product badges -->
+                    <div class="product-badges">
+                        {% if product.is_new %}<span class="badge new">New</span>{% endif %}
+                        {% if product.discount %}<span class="badge discount">-{{ product.discount }}%</span>{% endif %}
+                    </div>
+                    
+                    <!-- Share Button -->
+                    <div class="share-container">
+                        <button class="btn-share">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                        <div class="share-dropdown">
+                            {% with full_url=request.scheme|add:"://"|add:request.get_host|add:product.get_absolute_url %}
+                            <button onclick="copyLink('{{ full_url }}')">
+                                <i class="far fa-copy"></i> Copy Link
+                            </button>
+                            <a href="https://api.whatsapp.com/send?text=Check%20this%20out:%20{{ full_url|urlencode }}" target="_blank">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ full_url|urlencode }}" target="_blank">
+                                <i class="fab fa-facebook"></i> Facebook
+                            </a>
+                            {% endwith %}
+                        </div>
+                    </div>
+    
+                    <!-- Product image and details -->
+                    <a href="{{ product.get_absolute_url }}" class="product-image">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
+                        {% else %}
+                            <img src="{% static 'img/no_image.png' %}" alt="No image" class="img-fluid">
+                        {% endif %}
+                    </a>
+                    <div class="product-details">
+                      <h3 class="product-title">{{ product.name }}</h3>
+                      <div class="price-wrapper">
+                          {% if product.discount %}
+                              <span class="original-price">${{ product.price }}</span>
+                              <span class="discounted-price">${{ product.get_discounted_price }}</span>
+                          {% else %}
+                              <span class="current-price">${{ product.price }}</span>
+                          {% endif %}
+                      </div>
+                      <div class="product-actions">
+                        
+                        <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn-add-to-cart">
+                              <i class="fas fa-cart-plus"></i> Add to cart
+                            </button>
+                          </form>
+                        
+                      
+                          <div class="share-buttons">
+                              <!-- Share buttons code here -->
+                          </div>
+                      </div>
+                  </div>
+            
+                    <!-- ... Rest of product card ... -->
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    
+    <style>
+    /* ===== Share Button Styles ===== */
+    .share-container {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 3;
+    }
+    
+    .btn-share {
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-share:hover {
+        background: white;
+        transform: scale(1.1) rotate(120deg);
+    }
+    
+    .share-dropdown {
+        position: absolute;
+        right: 0;
+        top: 40px;
+        background: white;
+        border-radius: 12px;
+        padding: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        min-width: 140px;
+    }
+    
+    .share-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .share-dropdown button,
+    .share-dropdown a {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: none;
+        background: none;
+        color: var(--dark-color);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background 0.2s ease;
+    }
+    
+    .share-dropdown button:hover,
+    .share-dropdown a:hover {
+        background: #f8f9fa;
+    }
+    
+    .share-dropdown i {
+        width: 20px;
+        margin-right: 8px;
+        font-size: 0.9rem;
+    }
+    
+    /* Mobile optimizations for share */
+    @media (max-width: 576px) {
+        .share-dropdown {
+            min-width: 120px;
+        }
+        
+        .share-dropdown button,
+        .share-dropdown a {
+            font-size: 0.85rem;
+            padding: 6px 8px;
+        }
+    }
+    </style>
+    
+    <script>
+    // Share functionality
+    document.querySelectorAll('.btn-share').forEach(button => {
+        const dropdown = button.nextElementSibling;
+        
+        // Toggle dropdown
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    });
+    
+    // Copy link function with feedback
+    function copyLink(url) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('Link copied to clipboard!');
+        }).catch(err => {
+            showToast('Failed to copy link');
+            console.error('Copy error:', err);
+        });
+    }
+    
+    // Toast notification
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 2000);
+    }
+    </script>
+    <style>
+    .toast-notification {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--dark-color);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from { opacity: 0; transform: translate(-50%, 20px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+    }
+  </style>
+    
 <style>
-  /* Product Card Styling */
-  .product-card {
-      background: #fff;
-      border-radius: 8px;
-      text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 15px;
-  }
-  .product-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  }
-  .product-card img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-      border-radius: 4px;
-  }
-  .product-name {
-      font-size: 1.1rem;
-      color: #333;
-      margin: 10px 0 8px;
-  }
-  .product-price {
-      font-size: 1.2rem;
-      color: #666;
-  }
-  /* Responsive adjustments for mobile: force 3 items per row */
-  @media (max-width: 576px) {
-      .col-4 {
-          flex: 0 0 33.33%;
-          max-width: 33.33%;
-      }
-  }
+:root {
+    --primary-color: #ff6b6b;
+    --secondary-color: #4ecdc4;
+    --dark-color: #2d3436;
+    --light-color: #f9f9f9;
+    --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ===== Base Styles ===== */
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--dark-color);
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--primary-color);
+}
+
+/* ===== Category Cards ===== */
+.category-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: var(--transition);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.category-image {
+    aspect-ratio: 1/1;
+    overflow: hidden;
+}
+
+.category-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.category-info {
+    padding: 12px;
+}
+
+.category-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 4px;
+}
+
+.product-count {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* ===== Product Cards ===== */
+.product-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    transition: var(--transition);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.product-image {
+    display: block;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.product-details {
+    padding: 15px;
+}
+
+.product-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 8px;
+    height: 40px;
+    overflow: hidden;
+    display: -webkit-box;
+    
+    -webkit-box-orient: vertical;
+}
+
+.price-wrapper {
+    margin-bottom: 12px;
+}
+
+.current-price {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.original-price {
+    font-size: 0.9rem;
+    color: #999;
+    text-decoration: line-through;
+    margin-right: 8px;
+}
+
+.discounted-price {
+    font-size: 1.2rem;
+    color: var(--secondary-color);
+    font-weight: 700;
+}
+
+/* ===== Buttons & Interactions ===== */
+.btn-see-all {
+    background: var(--primary-color);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: var(--transition);
+    border: none;
+}
+
+.btn-see-all:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+}
+
+.btn-add-to-cart {
+    background: var(--dark-color);
+    color: white;
+    width: 100%;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-add-to-cart:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+/* ===== Hover Effects ===== */
+.hover-scale:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+}
+
+.category-card:hover .category-image img,
+.product-card:hover .product-image img {
+    transform: scale(1.05);
+}
+
+/* ===== Mobile Optimizations ===== */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .category-name {
+        font-size: 0.9rem;
+    }
+    
+    .product-title {
+        font-size: 0.95rem;
+        height: 36px;
+    }
+    
+    .btn-see-all {
+        padding: 10px 25px;
+        font-size: 0.9rem;
+    }
+    
+    .product-image {
+        aspect-ratio: 3/4;
+    }
+}
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    
+    .section-title {
+        font-size: 1.6rem;
+    }
+    
+    .product-card {
+        border-radius: 12px;
+    }
+    
+    .btn-add-to-cart {
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.category-section,
+.product-section {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* ===== Badges ===== */
+.product-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.badge.new {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.badge.discount {
+    background: var(--primary-color);
+    color: white;
+}
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-      function isElementInViewport(el) {
-          const rect = el.getBoundingClientRect();
-          return (
-              rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-              rect.bottom >= 0
-          );
-      }
+document.addEventListener("DOMContentLoaded", function() {
+    // Add smooth hover effects for mobile
+    document.querySelectorAll('.hover-scale').forEach(card => {
+        card.addEventListener('touchstart', function() {
+            this.classList.add('hover-scale-active');
+        });
+        
+        card.addEventListener('touchend', function() {
+            this.classList.remove('hover-scale-active');
+        });
+    });
 
-      function animateOnScroll() {
-          const elements = document.querySelectorAll('.scroll-animate');
-          elements.forEach(el => {
-              if (isElementInViewport(el)) {
-                  el.classList.add('active');
-              }
-          });
-      }
 
-      window.addEventListener('scroll', animateOnScroll);
-      animateOnScroll();
-  });
-
-  function copyLink(url) {
-      navigator.clipboard.writeText(url).then(function() {
-          alert('Link copied to clipboard!');
-      }, function(err) {
-          alert('Could not copy link. Error: ' + err);
-      });
-  }
+});
 </script>
 {% endblock %}
