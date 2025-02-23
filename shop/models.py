@@ -4,10 +4,8 @@ from ckeditor.fields import RichTextField
 # Category Model
 class Category(models.Model):
     name = models.CharField(max_length=200, db_index=True)
-    slug = models.SlugField(max_length=200, db_index=True, unique=True)
-
-    def get_absolute_url(self):
-        return reverse('shop:product_list_by_category', args=[self.slug])
+    slug = models.SlugField(max_length=200, unique=True)
+    image = models.ImageField(upload_to='categories/', blank=True, null=True)
 
     class Meta:
         ordering = ('name',)
@@ -16,6 +14,8 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+   
 
 # Product Model (main product model)
 class Product(models.Model):
